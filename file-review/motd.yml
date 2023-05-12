@@ -1,0 +1,39 @@
+---
+- name: Exercise for jinja templates are other things
+  hosts: servers
+  user: devops
+  become: True
+  tasks:
+  - name: Copy template files
+    ansible.builtin.template:
+      src: templates/motd.j2
+      dest: /etc/motd
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Verify /etc/motd exists
+    ansible.builtin.stat:
+      path: /etc/motd
+    register: result
+
+  - name: Show value of register 
+    ansible.builtin.debug:
+      msg: Value of registered variable is {{ result }}
+
+  - name: Copy a file
+    ansible.builtin.copy:
+      src: files/issue
+      dest: /etc
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Add symbolic link
+    ansible.builtin.file:
+      src: /etc/issue
+      dest: /etc/issue.net
+      owner: root
+      group: root
+      state: link
+      force: yes
