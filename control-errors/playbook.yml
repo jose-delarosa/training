@@ -1,0 +1,27 @@
+---
+- name: Task failure exercise
+  hosts: databases
+  vars:
+    web_package: httpd
+    db_package: mariadb-server
+    db_service: mariadb
+
+  tasks:
+  - name: Attempt to run some stuff
+    block:
+    - name: Install {{ web_package }} package
+      ansible.builtin.dnf:
+        name: "{{ web_package }}"
+        state: present
+
+    rescue:
+    - name: Install {{ db_package }} package
+      ansible.builtin.dnf:
+        name: "{{ db_package }}"
+        state: present
+
+    always:
+    - name: Restart the {{ db_service }} service
+      ansible.builtin.service:
+        name: "{{ db_service }}"
+        state: restarted

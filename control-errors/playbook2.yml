@@ -1,0 +1,37 @@
+---
+- name: Task failure exercise
+  hosts: databases
+  vars:
+    web_package: httpd
+    db_package: mariadb-server
+    db_service: mariadb
+
+  tasks:
+  - name: Check local time
+    ansible.builtin.command: date
+    register: command_result
+    changed_when: false
+
+  - name: Print output
+    ansible.builtin.debug:
+      var: command_result.stdout
+
+  - name: Attempt to run some stuff
+    block:
+    - name: Install {{ web_package }} package
+      ansible.builtin.dnf:
+        name: "{{ web_package }}"
+        state: present
+      failed_when: web_package == "httpd"
+
+    rescue:
+    - name: Install {{ db_package }} package
+      ansible.builtin.dnf:
+        name: "{{ db_package }}"
+        state: present
+
+    always:
+    - name: Restart the {{ db_service }} service
+      ansible.builtin.service:
+        name: "{{ db_service }}"
+        state: restarted
